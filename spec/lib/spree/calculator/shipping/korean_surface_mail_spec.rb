@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Spree::Calculator::Shipping::KoreanSurfaceMail do
-  let(:korean_surface_mail) { described_class.new }
+  let(:korean_surface_mail_calculator) { described_class.new }
 
   describe 'return description' do
     specify do
-      expect(korean_surface_mail.description).to eq '선편요금'
+      expect(korean_surface_mail_calculator.description).to eq '선편요금'
     end
   end
 
