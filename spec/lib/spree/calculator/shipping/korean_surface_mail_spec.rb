@@ -10,49 +10,71 @@ describe Spree::Calculator::Shipping::KoreanSurfaceMail do
   end
 
   describe 'when the price is under 200,000 won (defaults)' do
-    context '#compute:' do
+    context '#compute_package:' do
       it 'returns a price of 13,300 won when the weight is under 2kg' do
-
+        create_our_package(weight: 1.0, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(13300)
       end
 
       it 'returns a shipping cost of 17,800 when the weight is between 2-4kg' do
-
+        create_our_package(weight: 2.5, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(17800)
       end
 
       it 'returns a shipping cost of 22,300 won when the weight is between 4-6kg' do
-
+        create_our_package(weight: 5.5, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(22300)
       end
 
       it 'returns a shipping cost of 26,700 won when the weight is between 6-8kg' do
-
+        create_our_package(weight: 7.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(26700)
       end
 
       it 'returns a shipping cost of 31,300 won when the weight is between 8-10kg' do
-
+        create_our_package(weight: 9.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(31300)
       end
 
       it 'returns a shipping cost of 35,700 won when the weight is between 10-12kg' do
-
+        create_our_package(weight: 11.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(35700)
       end
 
       it 'returns a shipping cost of 40,200 won when the weight is between 12-14kg' do
-
+        create_our_package(weight: 13.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(40200)
       end
 
       it 'returns a shipping cost of 44,700 won when the weight is between 14-16kg' do
-
+        create_our_package(weight: 15.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(44700)
       end
 
       it 'returns a shipping cost of 49,700 won when the weight is between 16-18kg' do
-
+        create_our_package(weight: 17.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(49700)
       end
 
       it 'returns a shipping cost of 53,600 won when the weight is between 18-20kg' do
-
+        create_our_package(weight: 19.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(53600)
       end
 
       it 'doesn\'t apply when the weight is over 20kg' do
-
+        create_our_package(weight: 25.00, price: 10000, quantity: 1)
+        result = korean_surface_mail_calculator.compute_package(@package)
+        expect(result).to eq(0.0)
       end
     end
   end
