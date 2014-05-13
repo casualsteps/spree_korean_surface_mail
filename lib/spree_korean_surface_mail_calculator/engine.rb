@@ -7,7 +7,7 @@ module SpreeKoreanSurfaceMailCalculator
 
     initializer 'spree.register.calculators' do |app|
       require 'spree/calculator/shipping/korean_surface_mail'
-      app.config.spree.calculators.shipping_methods << Spree::Calculator::Shipping::KoreanSurfaceMail
+      app.config.spree.calculators.tax_rates << Spree::Calculator::KoreanSurfaceMail
     end
   end
 end
