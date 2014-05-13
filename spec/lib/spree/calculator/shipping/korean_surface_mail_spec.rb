@@ -81,127 +81,190 @@ describe Spree::Calculator::KoreanSurfaceMail do
 
   describe 'when the price is over 200,000 won (defaults)' do
     it 'returns a shipping cost of 27,000 won when the weight is under 1kg' do
-
+      create_our_order(weight: 0.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(27000)
     end
 
     it 'returns a shipping cost of 41,500 won when the weight is between 1-2kg' do
-
+      create_our_order(weight: 1.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(41500)
     end
 
     it 'returns a shipping cost of 51,000 won when the weight is between 2-3kg' do
-
+      create_our_order(weight: 2.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(51000)
     end
 
     it 'returns a shipping cost of 57,000 won when the weight is between 3-4kg' do
-
+      create_our_order(weight: 3.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(57000)
     end
 
     it 'returns a shipping cost of 63,000 won when the weight is between 4-5kg' do
-
+      create_our_order(weight: 4.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(63000)
     end
 
     it 'returns a shipping cost of 69,000 won when the weight is between 5-6kg' do
-
+      create_our_order(weight: 5.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(69000)
     end
 
     it 'returns a shipping cost of 75,000 won when the weight is between 6-7kg' do
-
+      create_our_order(weight: 6.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(75000)
     end
 
     it 'returns a shipping cost of 81,000 won when the weight is between 7-8kg' do
+      create_our_order(weight: 7.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(81000)
     end
 
     it 'returns a shipping cost of 87,000 won when the weight is between 8-9kg' do
-
+      create_our_order(weight: 8.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(87000)
     end
 
     it 'returns a shipping cost of 93,000 won when the weight is between 9-10kg' do
-
+      create_our_order(weight: 9.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(93000)
     end
 
     it 'returns a shipping cost of 99,000 won when the weight is between 10-11kg' do
-
+      create_our_order(weight: 10.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(99000)
     end
 
     it 'returns a shipping cost of 105,000 won when the weight is between 11-12kg' do
-
+      create_our_order(weight: 11.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(105000)
     end
 
     it 'returns a shipping cost of 111,000 won when the weight is between 12-13kg' do
-
+      create_our_order(weight: 12.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(111000)
     end
 
     it 'returns a shipping cost of 117,000 won when the weight is between 13-14kg' do
-
+      create_our_order(weight: 13.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(117000)
     end
 
     it 'returns a shipping cost of 123,000 won when the weight is between 14-15kg' do
-
+      create_our_order(weight: 14.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(123000)
     end
 
     it 'returns a shipping cost of 129,000 won when the weight is between 15-16kg' do
-
+      create_our_order(weight: 15.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(129000)
     end
 
     it 'returns a shipping cost of 135,000 won when the weight is between 16-17kg' do
-
+      create_our_order(weight: 16.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(135000)
     end
 
     it 'returns a shipping cost of 141,000 won when the weight is between 17-18kg' do
-
+      create_our_order(weight: 17.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(141000)
     end
 
     it 'returns a shipping cost of 147,000 won when the weight is between 18-19kg' do
-
+      create_our_order(weight: 18.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(147000)
     end
 
     it 'returns a shipping cost of 153,000 won when the weight is between 19-20kg' do
-
+      create_our_order(weight: 19.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(153000)
     end
 
     it 'returns a shipping cost of 159,000 won when the weight is between 20-21kg' do
-
+      create_our_order(weight: 20.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(159000)
     end
 
     it 'returns a shipping cost of 165,000 won when the weight is between 21-22kg' do
-
+      create_our_order(weight: 21.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(165000)
     end
 
     it 'returns a shipping cost of 171,000 won when the weight is between 22-23kg' do
-
+      create_our_order(weight: 22.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(171000)
     end
 
     it 'returns a shipping cost of 177,000 won when the weight is between 23-24kg' do
-
+      create_our_order(weight: 23.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(177000)
     end
 
     it 'returns a shipping cost of 183,000 won when the weight is between 24-25kg' do
-
+      create_our_order(weight: 24.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(183000)
     end
 
     it 'returns a shipping cost of 189,000 won when the weight is between 24-26kg' do
-
+      create_our_order(weight: 25.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(189000)
     end
 
     it 'returns a shipping cost of 195,000 won when the weight is between 26-27kg' do
+      create_our_order(weight: 26.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(195000)
     end
 
     it 'returns a shipping cost of 201,000 won when the weight is between 27-28kg' do
-
+      create_our_order(weight: 27.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(201000)
     end
 
     it 'returns a shipping cost of 207,000 won when the weight is between 28-29kg' do
-
+      create_our_order(weight: 28.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(207000)
     end
 
     it 'returns a shipping cost of 213,000 won when the weight is between 29-30kg' do
-
+      create_our_order(weight: 29.5, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(213000)
     end
 
     it 'doesn\'t apply when the weight is over 30kg' do
-
+      create_our_order(weight: 30.4, price: 200000, quantity: 1)
+      result = korean_surface_mail_calculator.compute(@order)
+      expect(result).to eq(0)
     end
-
   end
 
   def create_our_order(args={})
@@ -213,12 +276,12 @@ describe Spree::Calculator::KoreanSurfaceMail do
     @variant = create(:base_variant, params)
 
     params = { variant: @variant }
-    params.merge!(price: args[:price]) if args[:price]
-    params.merge!(quantity: args[:quantity]) if args[:quantity]
-    @line_item = create(:line_item, params)
 
+    params.merge!(quantity: args[:quantity]) if args[:quantity]
+    params.merge!(price: args[:price]) if args[:price]
+    @line_item = create(:line_item, params)
     @order = @line_item.order
     @order.line_items.reload
-
+    @order.update!
   end
 end
