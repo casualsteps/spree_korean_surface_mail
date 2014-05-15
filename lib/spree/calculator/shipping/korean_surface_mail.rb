@@ -1,6 +1,7 @@
 class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   #The rates are calculated using two different price_brackets the upper limit
   #is set here and can be overridden by the admin
+  preference :lower_price_bracket_minimum, :integer, :default => 0
   preference :lower_price_bracket_limit, :integer, :default => 200000
   #Depending on the price bracket the maximum weight (kg) of a package is decided
   preference :lower_price_bracket_max_weight, :decimal, :default => 20.00
@@ -26,7 +27,11 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
   end
 
-  def compute(order)
+  def rate
+    self.calculable
+  end
+
+  def compute_order(order)
     shipping_rate = 0
     return 0 if !available?(order)
     if is_in_lower_price_bracket?(order)
@@ -39,16 +44,32 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     shipping_rate
   end
 
+  #Spree calculates taxes on line items so it is calculated once for each line
+  #item.  To calculate this as a total for the order, return the total for
+  #the order divided by the number of line_items
+
+  def compute_line_item(line_item)
+    tax = (rate.amount * compute_order(line_item.order)) / line_item.order.line_items.size
+    tax
+  end
+
   private
     def calculate_total_weight(order)
-      order.line_items.reduce(0) { |total_weight, item| total_weight+= item.variant.weight }
+      #Currently we get all weights in hundreths of a pound calculate this
+      #value in kg might be worth using https://github.com/joshwlewis/unitwise
+      #for this
+      order.line_items.reduce(0) { |total_weight, item| total_weight+= (item.variant.weight * 4.53592)/1000 }
     end
 
     def is_in_upper_price_bracket?(order)
       if order.item_total >= self.preferred_lower_price_bracket_limit then return true else return false end
     end
 
+    def is_under_lower_price_bracket_minimum?(order)
+      if order.item_total > self.preferred_lower_price_bracket_minimum then return true else return false end
+    end
+
     def is_in_lower_price_bracket?(order)
-      if is_in_upper_price_bracket?(order) == false then return true else return false end
+      if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
     end
 end
