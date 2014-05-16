@@ -39,6 +39,8 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
     gwansae_rate = get_gwansae(order)
     bugasae_rate = get_bugasae(order)
+    # TODO: This should be order total + shipping charges, not
+    # just order.item_total
     order_total = order.item_total
 
     taxable_price = seonpyeonyogeum + order_total
