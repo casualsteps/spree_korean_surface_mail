@@ -18,9 +18,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   end
 
   def available?(order)
-    # TODO: need some way to calculate order total in USD for the below logic:
-    # if order.item_total.to_usd < 200
-    #   false
     if is_in_lower_price_bracket?(order) and calculate_total_weight(order) < self.preferred_lower_price_bracket_max_weight
       true
     elsif is_in_upper_price_bracket?(order) and calculate_total_weight(order) <= self.preferred_upper_price_bracket_max_weight
@@ -74,9 +71,8 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   private
     def get_gwansae(order)
       # For now, 관세 is simply 13% for clothing/shoes
-      # TODO LATER: Have this check each item in the order for
-      # its tax category, and return the corrct rate for the
-      # order. Will need to double-check logic here.
+      # TODO LATER: Each item in the order will need to have its
+      # 관세 calculated separately depending on its category
       0.13
     end
 
