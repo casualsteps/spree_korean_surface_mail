@@ -43,7 +43,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     taxable_price = seonpyeonyogeum + order_total
     gwansae = taxable_price * gwansae_rate
     bugasae = (taxable_price + gwansae) * bugasae_rate
-    round_to_two_places(gwansae + bugasae)
+    round_up(gwansae + bugasae)
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
@@ -70,8 +70,8 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
   private
 
-    def round_to_two_places(amount)
-      BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
+    def round_up(amount)
+      BigDecimal.new(amount.to_s).round()
     end
 
     def get_gwansae(order)
