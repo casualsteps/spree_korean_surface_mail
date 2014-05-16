@@ -17,27 +17,23 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     super
   end
 
-  def available?(order)
-    if is_in_lower_price_bracket?(order) and calculate_total_weight(order) < self.preferred_lower_price_bracket_max_weight
-      true
-    elsif is_in_upper_price_bracket?(order) and calculate_total_weight(order) <= self.preferred_upper_price_bracket_max_weight
-      true
-    else
-      false
-    end
-  end
-
   def rate
     self.calculable
   end
 
+  def compute_shipment(shipment)
+    0
+  end
+
+  def compute_shipping_rate(shipping_rate)
+    0
+  end
+
   def compute_order(order)
-    return 0 if !available?(order)
+    return 0 if !isApplicable?(order)
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
     gwansae_rate = get_gwansae(order)
     bugasae_rate = get_bugasae(order)
-    # TODO: This should be order total + shipping charges, not
-    # just order.item_total
     order_total = order.item_total
 
     taxable_price = seonpyeonyogeum + order_total
@@ -51,13 +47,13 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   #the order divided by the number of line_items
 
   def compute_line_item(line_item)
-    tax = (rate.amount * compute_order(line_item.order)) / line_item.order.line_items.size
+    tax = compute_order(line_item.order) / line_item.order.line_items.size
     tax
   end
 
   def calculate_seonpyeonyogeum(order)
     shipping_rate = 0
-    return 0 if !available?(order)
+    return 0 if !isApplicable?(order)
     if is_in_lower_price_bracket?(order)
       price_table = self.preferred_lower_price_bracket_weight_table.split
       shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order) < BigDecimal(price_weight.split(':').first) }
@@ -69,6 +65,16 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   end
 
   private
+
+    def isApplicable?(order)
+      if is_in_lower_price_bracket?(order) and calculate_total_weight(order) < self.preferred_lower_price_bracket_max_weight
+        true
+      elsif is_in_upper_price_bracket?(order) and calculate_total_weight(order) <= self.preferred_upper_price_bracket_max_weight
+        true
+      else
+        false
+      end
+    end
 
     def round_up(amount)
       BigDecimal.new(amount.to_s).round()
