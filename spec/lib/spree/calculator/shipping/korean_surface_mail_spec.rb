@@ -14,7 +14,7 @@ describe Spree::Calculator::KoreanSurfaceMail do
       it 'returns a tax of 70,834.5 KRW when weight is between 1-2kg' do
         create_our_order(weight: 330.693, price: 250000, quantity: 1)
         result = korean_surface_mail_calculator.compute(@order)
-        expect(result).to eq("70834.5")
+        expect(result).to eq(70834.5)
       end
     end
     # TODO: Add more test specs based on real past orders
