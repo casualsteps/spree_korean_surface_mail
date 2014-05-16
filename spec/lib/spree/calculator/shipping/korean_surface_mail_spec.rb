@@ -14,7 +14,6 @@ describe Spree::Calculator::KoreanSurfaceMail do
       it 'returns a tax of 70,835 (rounded up to nearest whole "won" from 70,384.5) KRW when weight is between 1-2kg' do
         create_our_order(weight: 330.693, price: 250000, quantity: 1)
         result = korean_surface_mail_calculator.compute(@order)
-        puts result
         expect(result).to eq(70835.0)
       end
     end
