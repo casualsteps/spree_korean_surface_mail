@@ -10,7 +10,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   preference :upper_price_bracket_weight_table, :string, :default => '1:27000 2:41500 3:51000 4:57000 5:63000 6:69000 7:75000 8:81000 9:87000 10:93000 11:99000 12:105000 13:111000 14:117000 15:123000 16:129000 17:135000 18:141000 19:147000 20:153000 21:159000 22:165000 23:171000 24:177000 25:183000 26:189000 27:195000 28:201000 29:207000 30:213000'
 
   def self.description
-    "선편요금"
+    "Korean customs tax (관세 + 부가세)"
   end
 
   def self.register
@@ -18,6 +18,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   end
 
   def available?(order)
+    # TODO: need some way to calculate order total in USD for the below logic:
+    # if order.item_total.to_usd < 200
+    #   false
     if is_in_lower_price_bracket?(order) and calculate_total_weight(order) < self.preferred_lower_price_bracket_max_weight
       true
     elsif is_in_upper_price_bracket?(order) and calculate_total_weight(order) <= self.preferred_upper_price_bracket_max_weight
@@ -32,6 +35,28 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   end
 
   def compute_order(order)
+    return 0 if !available?(order)
+    seonpyeonyogeum = calculate_seonpyeonyogeum(order)
+    gwansae_rate = get_gwansae(order)
+    bugasae_rate = get_bugasae(order)
+    order_total = order.item_total
+
+    taxable_price = seonpyeonyogeum + order_total
+    gwansae = taxable_price * gwansae_rate
+    bugasae = (taxable_price + gwansae) * bugasae_rate
+    return (gwansae + bugasae).to_s("F")
+  end
+
+  #Spree calculates taxes on line items so it is calculated once for each line
+  #item.  To calculate this as a total for the order, return the total for
+  #the order divided by the number of line_items
+
+  def compute_line_item(line_item)
+    tax = (rate.amount * compute_order(line_item.order)) / line_item.order.line_items.size
+    tax
+  end
+
+  def calculate_seonpyeonyogeum(order)
     shipping_rate = 0
     return 0 if !available?(order)
     if is_in_lower_price_bracket?(order)
@@ -44,16 +69,21 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     shipping_rate
   end
 
-  #Spree calculates taxes on line items so it is calculated once for each line
-  #item.  To calculate this as a total for the order, return the total for
-  #the order divided by the number of line_items
-
-  def compute_line_item(line_item)
-    tax = (rate.amount * compute_order(line_item.order)) / line_item.order.line_items.size
-    tax
-  end
-
   private
+    def get_gwansae(order)
+      # For now, 관세 is simply 13% for clothing/shoes
+      # TODO LATER: Have this check each item in the order for
+      # its tax category, and return the corrct rate for the
+      # order. Will need to double-check logic here.
+      0.13
+    end
+
+    def get_bugasae(order)
+      # 부가세 is always 10% regardless of category, but if this
+      # changes in the future, logic can be added here
+      0.1
+    end
+
     def calculate_total_weight(order)
       #Currently we get all weights in hundreths of a pound calculate this
       #value in kg might be worth using https://github.com/joshwlewis/unitwise
