@@ -2,10 +2,22 @@ require 'spec_helper'
 
 describe Spree::Calculator::KoreanSurfaceMail do
   let(:korean_surface_mail_calculator) { described_class.new }
+  let(:korean_surface_mail_calculator_usd_limit) { described_class.new(:preferred_limit_currency => 'USD', :preferred_lower_price_bracket_minimum => 200, :preferred_lower_price_bracket_limit => 200) }
 
   describe 'return description' do
     specify do
       expect(korean_surface_mail_calculator.description).to eq 'Korean customs tax (관세 + 부가세)'
+    end
+  end
+
+  describe 'when the limit currency is 200 USD' do
+    context '#compute:' do
+      it 'returns a tax of 70,835 (rounded up to the nearest whole "won") KRW when the weight is between 1-2kg' do
+        create_our_order(weight: 330.693, price: 300000, quantity: 1, currency: 'USD')
+        expect(korean_surface_mail_calculator_usd_limit.preferred_limit_currency).to eq('USD')
+        result = korean_surface_mail_calculator_usd_limit.compute(@order)
+        expect(result).to eq(79461)
+      end
     end
   end
 
@@ -279,18 +291,23 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   def create_our_order(args={})
+    Spree::Config[:currency] = 'KRW'
     params = {}
     params.merge!(weight: args[:weight]) if args[:weight]
     params.merge!(height: args[:height]) if args[:height]
     params.merge!(width:  args[:width])  if args[:width]
     params.merge!(depth:  args[:depth])  if args[:depth]
-    @variant = create(:base_variant, params)
+    if args[:currency]
+      @variant = create(:multi_currency_variant)
+      puts @variant.to_json
+    else
+      @variant = create(:base_variant, params)
+    end
 
     params = { variant: @variant }
-
     params.merge!(quantity: args[:quantity]) if args[:quantity]
     params.merge!(price: args[:price]) if args[:price]
-    @line_item = create(:line_item, params)
+    @line_item = create(:line_item_in_krw, params)
     @order = @line_item.order
     @order.line_items.reload
     @order.update!

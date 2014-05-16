@@ -1,6 +1,7 @@
 class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   #The rates are calculated using two different price_brackets the upper limit
   #is set here and can be overridden by the admin
+  preference :limit_currency, :string, :default => 'KRW'
   preference :lower_price_bracket_minimum, :integer, :default => 0
   preference :lower_price_bracket_limit, :integer, :default => 200000
   #Depending on the price bracket the maximum weight (kg) of a package is decided
@@ -94,8 +95,17 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       order.line_items.reduce(0) { |total_weight, item| total_weight+= (item.variant.weight * 4.53592)/1000 }
     end
 
+    def calculate_total_dollar_price(order)
+      order.line_items.reduce(0) { |total_in_dollars, item| total_in_dollars += item.variant.price_in('USD').amount }
+    end
+
     def is_in_upper_price_bracket?(order)
-      if order.item_total >= self.preferred_lower_price_bracket_limit then return true else return false end
+      if preferred_limit_currency != 'USD'
+        if order.item_total >= self.preferred_lower_price_bracket_limit then return true else return false end
+      else
+        puts calculate_total_dollar_price(order)
+        if calculate_total_dollar_price(order) >= self.preferred_lower_price_bracket_limit then return true else return false end
+      end
     end
 
     def is_under_lower_price_bracket_minimum?(order)
