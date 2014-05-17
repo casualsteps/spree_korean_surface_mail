@@ -106,19 +106,27 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def is_in_upper_price_bracket?(order)
-      if preferred_limit_currency != 'USD'
+      if preferred_limit_currency == 'KRW'
         if order.item_total >= self.preferred_lower_price_bracket_limit then return true else return false end
       else
-        puts calculate_total_dollar_price(order)
         if calculate_total_dollar_price(order) >= self.preferred_lower_price_bracket_limit then return true else return false end
       end
     end
 
     def is_under_lower_price_bracket_minimum?(order)
-      if order.item_total > self.preferred_lower_price_bracket_minimum then return true else return false end
+      if preferred_limit_currency == 'KRW'
+        if order.item_total > self.preferred_lower_price_bracket_minimum then return true else return false end
+      else
+        if calculate_total_dollar_price(order) > self.preferred_lower_price_bracket_minimum then return true else return false end
+      end
     end
 
     def is_in_lower_price_bracket?(order)
-      if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
+      if preferred_limit_currency == 'KRW'
+        if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
+      else
+        if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
+      end
     end
+
 end
