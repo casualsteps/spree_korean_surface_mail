@@ -16,6 +16,7 @@ require 'rspec/rails'
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 require 'spree/testing_support/factories'
+require 'spree_korean_surface_mail_calculator/factories'
 
 RSpec.configure do |config|
   config.mock_with :rspec
