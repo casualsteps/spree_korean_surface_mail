@@ -19,6 +19,17 @@ describe Spree::Calculator::KoreanSurfaceMail do
         expect(result).to eq(79461)
       end
     end
+    describe 'and the minimum charge is set to 200 USD' do
+      context '#compute:' do
+        it 'returns a tax of 0 when the price is below the threshold' do
+          create_our_order(weight: 330.693, price: 300000, quantity: 1, currency: 'USD')
+          korean_surface_mail_calculator_usd_limit.preferred_lower_price_bracket_limit = 300
+          expect(korean_surface_mail_calculator_usd_limit.preferred_limit_currency).to eq('USD')
+          result = korean_surface_mail_calculator_usd_limit.compute(@order)
+          expect(result).to eq(0)
+        end
+      end
+    end
   end
 
   describe 'when the price is 250,000 won' do
@@ -299,7 +310,6 @@ describe Spree::Calculator::KoreanSurfaceMail do
     params.merge!(depth:  args[:depth])  if args[:depth]
     if args[:currency]
       @variant = create(:multi_currency_variant)
-      puts @variant.to_json
     else
       @variant = create(:base_variant, params)
     end
