@@ -102,7 +102,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def calculate_total_dollar_price(order)
-      order.line_items.reduce(0) { |total_in_dollars, item| total_in_dollars += item.variant.price_in('USD').amount }
+      order.line_items.reduce(0) { |total_in_dollars, item| total_in_dollars+= item.variant.price_in('USD').amount * item.quantity }
     end
 
     def is_in_upper_price_bracket?(order)
