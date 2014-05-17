@@ -98,7 +98,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       #Currently we get all weights in hundreths of a pound calculate this
       #value in kg might be worth using https://github.com/joshwlewis/unitwise
       #for this
-      order.line_items.reduce(0) { |total_weight, item| total_weight+= (item.variant.weight * 4.53592)/1000 }
+      order.line_items.reduce(0) { |total_weight, item| total_weight+= ((item.variant.weight * 4.53592)/1000) * item.quantity }
     end
 
     def calculate_total_dollar_price(order)
