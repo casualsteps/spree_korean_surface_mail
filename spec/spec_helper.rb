@@ -17,10 +17,11 @@ Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 require 'spree/testing_support/factories'
 require 'spree_korean_surface_mail_calculator/factories'
+require 'spree/testing_support/preferences'
 
 RSpec.configure do |config|
   config.mock_with :rspec
   config.color = true
-
+  config.include Spree::TestingSupport::Preferences
   config.include FactoryGirl::Syntax::Methods
 end

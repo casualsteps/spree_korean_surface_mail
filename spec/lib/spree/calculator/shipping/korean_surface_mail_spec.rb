@@ -4,6 +4,10 @@ describe Spree::Calculator::KoreanSurfaceMail do
   let(:korean_surface_mail_calculator) { described_class.new }
   let(:korean_surface_mail_calculator_usd_limit) { described_class.new(:preferred_limit_currency => 'USD', :preferred_lower_price_bracket_minimum => 200, :preferred_lower_price_bracket_limit => 200) }
 
+  before do
+    Spree::CurrencyRate.create!(:base_currency => 'USD', :target_currency => 'KRW', :rate => 1050.00)
+  end
+
   describe 'return description' do
     specify do
       expect(korean_surface_mail_calculator.description).to eq 'Korean customs tax (관세 + 부가세)'
@@ -11,23 +15,13 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   describe 'when the limit currency is 200 USD' do
+
     context '#compute:' do
-      it 'returns a tax of 70,835 (rounded up to the nearest whole "won") KRW when the weight is between 1-2kg' do
+      it 'returns a tax of 79461 (rounded up to the nearest whole "won") KRW when the weight is between 1-2kg' do
         create_our_order(weight: 330.693, price: 300000, quantity: 1, currency: 'USD')
         expect(korean_surface_mail_calculator_usd_limit.preferred_limit_currency).to eq('USD')
         result = korean_surface_mail_calculator_usd_limit.compute(@order)
         expect(result).to eq(79461)
-      end
-    end
-    describe 'and the minimum charge is set to 200 USD' do
-      context '#compute:' do
-        it 'returns a tax of 0 when the price is below the threshold' do
-          create_our_order(weight: 330.693, price: 300000, quantity: 1, currency: 'USD')
-          korean_surface_mail_calculator_usd_limit.preferred_lower_price_bracket_limit = 300
-          expect(korean_surface_mail_calculator_usd_limit.preferred_limit_currency).to eq('USD')
-          result = korean_surface_mail_calculator_usd_limit.compute(@order)
-          expect(result).to eq(0)
-        end
       end
     end
   end
@@ -44,6 +38,7 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   describe 'when the price is under 200,000 won (defaults)' do
+
     context '#calculate_seonpyeonyogeum:' do
       it 'returns a price of 13,300 won when the weight is under 2kg' do
         create_our_order(weight: 220.462, price: 10000, quantity: 1)
@@ -114,6 +109,7 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   describe 'when the price is over 200,000 won (defaults)' do
+
     it 'returns a shipping cost of 27,000 won when the weight is under 1kg' do
       create_our_order(weight: 198.416, price: 200000, quantity: 1)
       result = korean_surface_mail_calculator.calculate_seonpyeonyogeum(@order)
@@ -302,7 +298,6 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   def create_our_order(args={})
-    Spree::Config[:currency] = 'KRW'
     params = {}
     params.merge!(weight: args[:weight]) if args[:weight]
     params.merge!(height: args[:height]) if args[:height]

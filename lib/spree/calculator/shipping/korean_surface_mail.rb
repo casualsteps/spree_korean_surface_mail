@@ -49,7 +49,11 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
   def compute_line_item(line_item)
     tax = compute_order(line_item.order) / line_item.order.line_items.size
-    tax
+    if Spree::Config[:settlement_currency] == 'KRW'
+      tax
+    else
+      Spree::CurrencyRate.first.convert_to_usd(tax).to_f
+    end
   end
 
   def calculate_seonpyeonyogeum(order)
