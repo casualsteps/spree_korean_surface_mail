@@ -40,7 +40,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     taxable_price = seonpyeonyogeum + order_total
     gwansae = taxable_price * gwansae_rate
     bugasae = (taxable_price + gwansae) * bugasae_rate
-    round_up(gwansae + bugasae)
+    Spree::CurrencyRate.first.convert_to_usd(round_up(gwansae + bugasae)).to_f
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
@@ -48,12 +48,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   #the order divided by the number of line_items
 
   def compute_line_item(line_item)
-    tax = compute_order(line_item.order) / line_item.order.line_items.size
-    if Spree::Config[:settlement_currency] == 'KRW'
-      tax
-    else
-      Spree::CurrencyRate.first.convert_to_usd(tax).to_f
-    end
+    compute_order(line_item.order) / line_item.order.line_items.size
   end
 
   def calculate_seonpyeonyogeum(order)
