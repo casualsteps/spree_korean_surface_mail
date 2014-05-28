@@ -15,31 +15,68 @@ describe Spree::Calculator::KoreanSurfaceMail do
   end
 
   describe 'when the limit currency is 200 USD' do
+    before do
+      reset_spree_preferences do |config|
+        config.settlement_currency = 'USD'
+        config.presentation_currency = 'KRW'
+      end
+    end
 
     context '#compute:' do
-      it 'returns a tax of 79461 (rounded up to the nearest whole "won") KRW when the weight is between 1-2kg' do
-        create_our_order(weight: 330.693, price: 300000, quantity: 1, currency: 'USD')
+      it 'returns a tax of 75.67 USD when the weight is between 1-2kg and the price is 300 USD' do
+        create_our_order(weight: 330.693, price: 300, quantity: 1)
         expect(korean_surface_mail_calculator_usd_limit.preferred_limit_currency).to eq('USD')
         result = korean_surface_mail_calculator_usd_limit.compute(@order)
-        expect(result).to eq(79461)
+        expect(result).to eq(75.67)
       end
     end
   end
 
-  describe 'when the price is 250,000 won' do
+  describe 'when the price is 250 USD' do
     context '#compute:' do
-      it 'returns a tax of 70,835 (rounded up to nearest whole "won" from 70,384.5) KRW when weight is between 1-2kg' do
-        create_our_order(weight: 330.693, price: 250000, quantity: 1)
-        result = korean_surface_mail_calculator.compute(@order)
+      it 'returns a tax of 67.46 USD' do
+        create_our_order(weight: 330.693, price: 250, quantity: 1)
+        result = korean_surface_mail_calculator_usd_limit.compute(@order)
+        expect(result).to eq(67.46)
+      end
+    end
+  end
+
+  describe 'when the settlement_currency is USD and the limit currrency is USD' do
+
+    context '#compute:' do
+      before do
+        reset_spree_preferences do |config|
+          config.settlement_currency = 'USD'
+          config.presentation_currency = 'KRW'
+        end
+      end
+
+      it 'returns a tax of 79461 won' do
+        create_our_order(weight: 330.693, price: 300, quantity: 1)
+        result = korean_surface_mail_calculator_usd_limit.compute(@order)
+        expect(result).to eq(79461.0)
+      end
+
+      it 'return a tax of 70835.0 won' do
+        create_our_order(weight: 330.693, price: 250, quantity: 1)
+        result = korean_surface_mail_calculator_usd_limit.compute(@order)
         expect(result).to eq(70835.0)
       end
     end
-    # TODO: Add more test specs based on real past orders
+
   end
 
   describe 'when the price is under 200,000 won (defaults)' do
 
     context '#calculate_seonpyeonyogeum:' do
+      before do
+        reset_spree_preferences do |config|
+          config.settlement_currency = 'USD'
+          config.presentation_currency = 'KRW'
+        end
+      end
+
       it 'returns a price of 13,300 won when the weight is under 2kg' do
         create_our_order(weight: 220.462, price: 10000, quantity: 1)
         result = korean_surface_mail_calculator.calculate_seonpyeonyogeum(@order)
@@ -111,7 +148,7 @@ describe Spree::Calculator::KoreanSurfaceMail do
   describe 'when the price is over 200,000 won (defaults)' do
 
     it 'returns a shipping cost of 27,000 won when the weight is under 1kg' do
-      create_our_order(weight: 198.416, price: 200000, quantity: 1)
+      create_our_order(weight: 198.416, price: 200000, quantity: 1,currency: 'USD')
       result = korean_surface_mail_calculator.calculate_seonpyeonyogeum(@order)
       expect(result).to eq(27000)
     end
