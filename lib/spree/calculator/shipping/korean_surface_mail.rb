@@ -33,8 +33,8 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   def compute_order(order)
     return 0 if !isApplicable?(order)
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
-    gwansae_rate = get_gwansae(order)
-    bugasae_rate = get_bugasae(order)
+    gwansae_rate = get_gwansae_rate(order)
+    bugasae_rate = get_bugasae_rate(order)
     order_total = order.presentation_item_total
 
     taxable_price = seonpyeonyogeum + order_total
@@ -80,14 +80,14 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       BigDecimal.new(amount.to_s).round()
     end
 
-    def get_gwansae(order)
+    def get_gwansae_rate(order)
       # For now, 관세 is simply 13% for clothing/shoes
       # TODO LATER: Each item in the order will need to have its
       # 관세 calculated separately depending on its category
       0.13
     end
 
-    def get_bugasae(order)
+    def get_bugasae_rate(order)
       # 부가세 is always 10% regardless of category, but if this
       # changes in the future, logic can be added here
       0.1
