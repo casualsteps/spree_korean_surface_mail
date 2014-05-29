@@ -1,5 +1,6 @@
 module SpreeKoreanSurfaceMailCalculator
   class Engine < Rails::Engine
+    require 'spree/core'
     isolate_namespace Spree
     engine_name 'spree_korean_surface_mail_calculator'
 
