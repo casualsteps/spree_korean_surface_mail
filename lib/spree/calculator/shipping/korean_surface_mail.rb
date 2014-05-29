@@ -38,15 +38,14 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     order_total = order.presentation_item_total
 
     taxable_price = seonpyeonyogeum + order_total
-    gwansae = taxable_price * gwansae_rate
-    bugasae = (taxable_price + gwansae) * bugasae_rate
-    Spree::CurrencyRate.first.convert_to_usd(round_up(gwansae + bugasae)).to_f
+    order.gwansae = taxable_price * gwansae_rate
+    order.bugasae = (taxable_price + order.gwansae) * bugasae_rate
+    Spree::CurrencyRate.first.convert_to_usd(round_up(order.gwansae + order.bugasae)).to_f
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
   #item.  To calculate this as a total for the order, return the total for
   #the order divided by the number of line_items
-
   def compute_line_item(line_item)
     compute_order(line_item.order) / line_item.order.line_items.size
   end
