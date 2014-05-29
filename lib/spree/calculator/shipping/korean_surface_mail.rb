@@ -32,15 +32,25 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
   def compute_order(order)
     return 0 if !isApplicable?(order)
+    @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
     gwansae_rate = get_gwansae_rate(order)
     bugasae_rate = get_bugasae_rate(order)
     order_total = order.presentation_item_total
 
     taxable_price = seonpyeonyogeum + order_total
-    order.gwansae = taxable_price * gwansae_rate
-    order.bugasae = (taxable_price + order.gwansae) * bugasae_rate
-    Spree::CurrencyRate.first.convert_to_usd(round_up(order.gwansae + order.bugasae)).to_f
+    gwansae = round_up(taxable_price * gwansae_rate)
+    gwansae = @currency_rate.convert_to_usd(gwansae).to_f
+    bugasae = (taxable_price + gwansae) * bugasae_rate
+    bugasae = round_up(bugasae)
+    bugasae = @currency_rate.convert_to_usd(bugasae).to_f
+
+    order.update_columns(
+      gwansae: gwansae,
+      bugasae: bugasae
+    )
+    order.reload
+    gwansae + bugasae
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
