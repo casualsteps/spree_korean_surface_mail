@@ -31,7 +31,15 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   end
 
   def compute_order(order)
-    return 0 if !isApplicable?(order)
+    if !isApplicable?(order)
+      order.update_columns(
+        gwansae: 0,
+        bugasae: 0
+      )
+      order.reload
+      return 0
+    end
+
     @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
     gwansae_rate = get_gwansae_rate(order)
