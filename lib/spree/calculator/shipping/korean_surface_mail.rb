@@ -1,9 +1,9 @@
 class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   #The rates are calculated using two different price_brackets the upper limit
   #is set here and can be overridden by the admin
-  preference :limit_currency, :string, :default => 'KRW'
-  preference :lower_price_bracket_minimum, :integer, :default => 0
-  preference :lower_price_bracket_limit, :integer, :default => 200000
+  preference :limit_currency, :string, :default => 'USD'
+  preference :lower_price_bracket_minimum, :integer, :default => 200
+  preference :lower_price_bracket_limit, :integer, :default => 200
   #Depending on the price bracket the maximum weight (kg) of a package is decided
   preference :lower_price_bracket_max_weight, :decimal, :default => 20.00
   preference :upper_price_bracket_max_weight, :decimal, :default => 30.00
