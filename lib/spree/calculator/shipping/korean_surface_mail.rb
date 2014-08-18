@@ -118,7 +118,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def calculate_total_price(order,currency)
-      order.line_items.reduce(0) { |total, item| total+= item.variant.price_in(currency).amount * item.quantity }
+      order.item_total + order.mock_shipment_total
     end
 
     def is_in_upper_price_bracket?(order)
