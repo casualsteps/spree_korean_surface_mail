@@ -48,9 +48,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
     taxable_price = seonpyeonyogeum + order_total
     gwansae = round_up(taxable_price * gwansae_rate)
-    gwansae = @currency_rate.convert_to_usd(gwansae).to_f
     bugasae = (taxable_price + gwansae) * bugasae_rate
     bugasae = round_up(bugasae)
+    gwansae = @currency_rate.convert_to_usd(gwansae).to_f
     bugasae = @currency_rate.convert_to_usd(bugasae).to_f
 
     order.update_columns(
