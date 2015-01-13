@@ -41,6 +41,11 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
+    # vinay
+    order.line_items.each { |item|
+      #binding.pry
+      puts item.price
+    }
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
     gwansae_rate = get_gwansae_rate(order)
     bugasae_rate = get_bugasae_rate(order)
@@ -70,7 +75,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
   def calculate_seonpyeonyogeum(order)
     shipping_rate = 0
-    return 0 if !isApplicable?(order)
     if is_in_lower_price_bracket?(order)
       price_table = self.preferred_lower_price_bracket_weight_table.split
       shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order) < BigDecimal(price_weight.split(':').first) }
@@ -117,48 +121,20 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       order.line_items.reduce(0) { |total_weight, item| total_weight+= ((item.variant.weight * 4.53592)/1000) * item.quantity }
     end
 
-    def calculate_total_price(order,currency)
+    def calculate_total_price(order)
       order.item_total + order.mock_shipment_total
     end
 
     def is_in_upper_price_bracket?(order)
-      if preferred_limit_currency == 'KRW'
-        if Spree::Config[:settlement_currency] == 'KRW'
-          if order.item_total >= self.preferred_lower_price_bracket_limit then return true else return false end
-        else
-          if calculate_total_price(order,'KRW') >= self.preferred_lower_price_bracket_limit then return true else return false end
-        end
-      else
-        if Spree::Config[:settlement_currency] == 'USD'
-          if order.item_total > self.preferred_lower_price_bracket_limit then return true else return false end
-        else
-          if calculate_total_price(order,'USD') >= self.preferred_lower_price_bracket_limit then return true else return false end
-        end
-      end
+      order.item_total >= self.preferred_lower_price_bracket_limit
     end
 
     def is_under_lower_price_bracket_minimum?(order)
-      if preferred_limit_currency == 'KRW'
-        if Spree::Config[:settlement_currency] == 'KRW'
-          if order.item_total > self.preferred_lower_price_bracket_minimum then return true else return false end
-        else
-          if calculate_total_price(order,'KRW') > self.preferred_lower_price_bracket_minimum then return true else return false end
-        end
-      else
-        if Spree::Config[:settlement_currency] == 'USD'
-          if order.item_total > self.preferred_lower_price_bracket_minimum then return true else return false end
-        else
-          if calculate_total_price(order,'USD') > self.preferred_lower_price_bracket_minimum then return true else return false end
-        end
-      end
+      order.item_total > self.preferred_lower_price_bracket_minimum
     end
 
     def is_in_lower_price_bracket?(order)
-      if preferred_limit_currency == 'KRW'
-        if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
-      else
-        if is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true then return true else return false end
-      end
+      is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true
     end
 
 end
