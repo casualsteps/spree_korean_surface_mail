@@ -54,7 +54,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       taxable_price_for_this_item = li_price + seonpyeonyogeum_for_this_item + local_shipping_for_this_item
       taxable_price_for_this_item = taxable_price_for_this_item.round(2)
       get_gwansae_rate2(li)
-      a = 1
     }
     gwansae_rate = get_gwansae_rate(order)
     bugasae_rate = get_bugasae_rate(order)
@@ -111,15 +110,26 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def get_gwansae_rate(order)
-      # For now, 관세 is simply 13% for clothing/shoes
-      # TODO LATER: Each item in the order will need to have its
-      # 관세 calculated separately depending on its category
       0.13
     end
     
     def get_gwansae_rate2(item)
       binding.pry
-      0.13
+      # item.product.taxon_ids
+      case item.product.category
+      when /fur/
+        0.16
+      when /cotton/
+        0.13
+      when /metal/
+        0.8
+      when /jewel/
+        0.5
+      when /watch/
+        0.8
+      else
+        0
+      end
     end
 
     def get_bugasae_rate(order)
