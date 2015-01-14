@@ -41,12 +41,21 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
-    # vinay
-    order.line_items.each { |item|
-      #binding.pry
-      puts item.price
-    }
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
+    # vinay
+    # all the calculations are in KRW
+    order.line_items.each { |li|
+      puts li.price
+      li_price = @currency_rate.convert_to_won(li.quantity * li.price).to_f
+      order_total_price = @currency_rate.convert_to_won(order.item_total).to_f
+      seonpyeonyogeum_for_this_item = seonpyeonyogeum * (li_price / order_total_price)
+      # if there are 2 gap items then should we consider local shipping charge for both items?
+      local_shipping_for_this_item = @currency_rate.convert_to_won(li.product.local_shipping_total).to_f
+      taxable_price_for_this_item = li_price + seonpyeonyogeum_for_this_item + local_shipping_for_this_item
+      taxable_price_for_this_item = taxable_price_for_this_item.round(2)
+      get_gwansae_rate2(li)
+      a = 1
+    }
     gwansae_rate = get_gwansae_rate(order)
     bugasae_rate = get_bugasae_rate(order)
     order_total = order.presentation_item_total
@@ -105,6 +114,11 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       # For now, 관세 is simply 13% for clothing/shoes
       # TODO LATER: Each item in the order will need to have its
       # 관세 calculated separately depending on its category
+      0.13
+    end
+    
+    def get_gwansae_rate2(item)
+      binding.pry
       0.13
     end
 
