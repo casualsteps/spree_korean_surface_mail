@@ -42,36 +42,75 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
     @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
     seonpyeonyogeum = calculate_seonpyeonyogeum(order)
-    # vinay
-    # all the calculations are in KRW
-    order.line_items.each { |li|
-      puts li.price
-      li_price = @currency_rate.convert_to_won(li.quantity * li.price).to_f
-      order_total_price = @currency_rate.convert_to_won(order.item_total).to_f
-      seonpyeonyogeum_for_this_item = seonpyeonyogeum * (li_price / order_total_price)
-      # if there are 2 gap items then should we consider local shipping charge for both items?
-      local_shipping_for_this_item = @currency_rate.convert_to_won(li.product.local_shipping_total).to_f
-      taxable_price_for_this_item = li_price + seonpyeonyogeum_for_this_item + local_shipping_for_this_item
-      taxable_price_for_this_item = taxable_price_for_this_item.round(2)
-      get_gwansae_rate2(li)
-    }
-    gwansae_rate = get_gwansae_rate(order)
-    bugasae_rate = get_bugasae_rate(order)
-    order_total = order.presentation_item_total
 
-    taxable_price = seonpyeonyogeum + order_total
-    gwansae = round_up(taxable_price * gwansae_rate)
-    bugasae = (taxable_price + gwansae) * bugasae_rate
-    bugasae = round_up(bugasae)
-    gwansae = @currency_rate.convert_to_usd(gwansae).to_f
-    bugasae = @currency_rate.convert_to_usd(bugasae).to_f
+    # vinay
+    gwansae_total = 0
+    bugasae_total = 0
+    additional_tax_total = 0
+
+    order.line_items.each { |li|
+      # all calculations are in KRW
+      binding.pry
+      item_price = @currency_rate.convert_to_won(li.quantity * li.price).to_f
+      order_price = @currency_rate.convert_to_won(order.item_total).to_f
+
+      seonpyeonyogeum_for_this_item = seonpyeonyogeum * (item_price / order_price)
+      local_shipping_charge = @currency_rate.convert_to_won(li.product.local_shipping_total).to_f
+      hyeonjisobisae_rate = get_hyeonjisobisae_rate(li)
+      hyeonjisobisae = (item_price + local_shipping_charge) * hyeonjisobisae_rate
+
+      taxable_price = item_price + hyeonjisobisae + seonpyeonyogeum_for_this_item + local_shipping_charge
+      gwansae_rate = get_gwansae_rate(li)
+      gwansae = round_up(taxable_price * gwansae_rate)
+
+      additional_tax = 0
+      if taxable_price > 2000000
+        teukbyeolsobisae_rate = get_teukbyeolsobisae_rate(li)
+        gyoyuksae_rate = get_gyoyuksae_rate(li)
+        nongteuksae_rate = get_nongteuksae_rate(li)
+        teukbyeolsobisae = (taxable_price - 2000000 + gwansae) * teukbyeolsobisae_rate
+        gyoyuksae = teukbyeolsobisae * gyoyuksae_rate
+        nongteuksae = teukbyeolsobisae * nongteuksae_rate
+        additional_tax = teukbyeolsobisae + gyoyuksae + nongteuksae
+      end
+
+      bugasae_rate = get_bugasae_rate(li)
+      bugasae = (taxable_price + gwansae + additional_tax) * bugasae_rate
+      bugasae = round_up(bugasae)
+
+      gwansae_total += gwansae
+      bugasae_total += bugasae
+      additional_tax_total += additional_tax
+    }
+
+    gwansae_total = @currency_rate.convert_to_usd(gwansae_total).to_f
+    bugasae_total = @currency_rate.convert_to_usd(bugasae_total).to_f
+    additional_tax_total = @currency_rate.convert_to_usd(additional_tax_total).to_f
 
     order.update_columns(
-      gwansae: gwansae,
-      bugasae: bugasae
+      gwansae: gwansae_total,
+      bugasae: bugasae_total
     )
     order.reload
-    gwansae + bugasae
+    gwansae_total + bugasae_total + additional_tax_total
+    
+    #gwansae_rate = get_gwansae_rate(order)
+    #bugasae_rate = get_bugasae_rate(order)
+    #order_total = order.presentation_item_total
+
+    #taxable_price = seonpyeonyogeum + order_total
+    #gwansae = round_up(taxable_price * gwansae_rate)
+    #bugasae = (taxable_price + gwansae) * bugasae_rate
+    #bugasae = round_up(bugasae)
+    #gwansae = @currency_rate.convert_to_usd(gwansae).to_f
+    #bugasae = @currency_rate.convert_to_usd(bugasae).to_f
+
+    #order.update_columns(
+    #  gwansae: gwansae,
+    #  bugasae: bugasae
+    #)
+    #order.reload
+    #gwansae + bugasae
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
@@ -109,33 +148,61 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       BigDecimal.new(amount.to_s).round()
     end
 
-    def get_gwansae_rate(order)
-      0.13
+    #def get_gwansae_rate(order)
+    #  0.13
+    #end
+    
+    # 관세
+    def get_gwansae_rate(item)
+      case item.product.category
+      when /jewel/, /watch/
+        0.08
+      else # clothing and others
+        0.13
+      end
     end
     
-    def get_gwansae_rate2(item)
-      binding.pry
-      # item.product.taxon_ids
+    # 특별소비세
+    def get_teukbyeolsobisae_rate(item)
       case item.product.category
-      when /fur/
-        0.16
-      when /cotton/
-        0.13
-      when /metal/
-        0.8
-      when /jewel/
-        0.5
-      when /watch/
-        0.8
-      else
+      when /jewel/, /watch/
+        0.2
+      else 
         0
       end
     end
 
-    def get_bugasae_rate(order)
+    # 교육세
+    def get_gyoyuksae_rate(item)
+      case item.product.category
+      when /jewel/, /watch/
+        0.3
+      else 
+        0
+      end
+    end
+
+    #농특세
+    def get_nongteuksae_rate(item)
+      # 농특세 is 10% for only 모피의류(fur) items over 200만원, currently we ignore it
+      0
+    end
+
+    #부가세
+    def get_bugasae_rate(item)
       # 부가세 is always 10% regardless of category, but if this
       # changes in the future, logic can be added here
       0.1
+    end
+
+    #현지소비세 US sales tax 
+    def get_hyeonjisobisae_rate(item)
+      case item.product.merchant
+      when "gap", "bananarepublic"
+        0.0625
+      else 
+        0
+      end
     end
 
     def calculate_total_weight(order)
