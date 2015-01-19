@@ -152,7 +152,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
     def get_hyeonjisobisae_rate(item)
       case item.product.merchant
-      when "gap", "bananarepublic"
+      when "gap", "bananarepublic", "footlocker"
         0.0625
       else 
         0
