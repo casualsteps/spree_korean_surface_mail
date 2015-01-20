@@ -53,13 +53,13 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     gwansae_total = 0
     bugasae_total = 0
 
-    order.line_items.each { |li|
+    order.line_items.each do |li|
       # all calculations are in KRW
       gwansae = calculate_gwansae(li)
       bugasae = calculate_bugasae(li)
       gwansae_total += gwansae
       bugasae_total += bugasae
-    }
+    end
 
     bugasae_total += calculate_teukbyeolsobisae(order) + calculate_gyoyuksae_or_nongteuksae(order, "gyoyuksae") + calculate_gyoyuksae_or_nongteuksae(order, "nongteuksae")
     hyeonjisobisae_total = calculate_hyeonjisobisae(order)
