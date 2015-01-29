@@ -45,7 +45,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     if !isApplicable?(order)
       order.update_columns(
         gwansae: 0,
-        bugasae: 0
+        bugasae: 0,
         included_tax_total: hyeonjisobisae_total
       )
       order.reload
