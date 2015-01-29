@@ -114,7 +114,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
     def get_gwansae_rate(item)
       case item.product.category
-      when /jewel/, /watch/
+      when /jewel/, /watch/, /bags/
         0.08
       else # clothing and others
         0.13
