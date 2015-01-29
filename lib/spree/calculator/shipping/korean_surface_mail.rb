@@ -50,7 +50,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         included_tax_total: hyeonjisobisae_total
       )
       order.reload
-      return 0
+      return hyeonjisobisae_total
     end
 
     gwansae_total = 0
@@ -60,22 +60,21 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       # all calculations are in KRW
       gwansae = calculate_gwansae(li)
       bugasae = calculate_bugasae(li)
-      gwansae_total += gwansae
-      bugasae_total += bugasae
+      gwansae_total += (bugasae + gwansae)
     end
 
-    bugasae_total += calculate_teukbyeolsobisae(order) + calculate_gyoyuksae_or_nongteuksae(order, "gyoyuksae") + calculate_gyoyuksae_or_nongteuksae(order, "nongteuksae")
+    other_taxes_total = calculate_teukbyeolsobisae(order) + calculate_gyoyuksae_or_nongteuksae(order, "gyoyuksae") + calculate_gyoyuksae_or_nongteuksae(order, "nongteuksae")
 
     gwansae_total = @currency_rate.convert_to_usd(gwansae_total).to_f
-    bugasae_total = @currency_rate.convert_to_usd(bugasae_total).to_f
+    other_taxes_total = @currency_rate.convert_to_usd(other_taxes_total).to_f
 
     order.update_columns(
-      gwansae: gwansae_total,
-      bugasae: bugasae_total,
+      gwansae: gwansae_total,       # gwansae has both gwansae and bugasae
+      bugasae: other_taxes_total,   # we use bugasae columns for other taxes
       included_tax_total: hyeonjisobisae_total
     )
     order.reload
-    gwansae_total + bugasae_total + hyeonjisobisae_total
+    gwansae_total + other_taxes_total + hyeonjisobisae_total
   end
 
   #Spree calculates taxes on line items so it is calculated once for each line
@@ -214,9 +213,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::LineItem then [lineitem_or_order]
         when Spree::Order then lineitem_or_order.line_items
       end
-    
+
       return nil if items.empty?
-    
+
       teukbyeolsobisae = 0
       items.each { |item|
         taxable_price = calculate_taxable_price(item)
@@ -225,10 +224,10 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         teukbyeolsobisae_rate = get_teukbyeolsobisae_rate(item)
         teukbyeolsobisae += (taxable_price - 2000000 + gwansae) * teukbyeolsobisae_rate
       }
-    
+
       teukbyeolsobisae
     end
-    
+
     def calculate_gyoyuksae_or_nongteuksae(lineitem_or_order, tax_type)
       items = case lineitem_or_order
         when Spree::LineItem then [lineitem_or_order]
