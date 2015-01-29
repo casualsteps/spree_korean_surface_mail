@@ -39,10 +39,14 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   # nongteuksae (농특세) -> ??
  
   def compute_order(order)
+    hyeonjisobisae_total = calculate_hyeonjisobisae(order)
+    hyeonjisobisae_total = @currency_rate.convert_to_usd(hyeonjisobisae_total).to_f
+
     if !isApplicable?(order)
       order.update_columns(
         gwansae: 0,
         bugasae: 0
+        included_tax_total: hyeonjisobisae_total
       )
       order.reload
       return 0
@@ -62,11 +66,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     bugasae_total += calculate_teukbyeolsobisae(order) + calculate_gyoyuksae_or_nongteuksae(order, "gyoyuksae") + calculate_gyoyuksae_or_nongteuksae(order, "nongteuksae")
-    hyeonjisobisae_total = calculate_hyeonjisobisae(order)
 
     gwansae_total = @currency_rate.convert_to_usd(gwansae_total).to_f
     bugasae_total = @currency_rate.convert_to_usd(bugasae_total).to_f
-    hyeonjisobisae_total = @currency_rate.convert_to_usd(hyeonjisobisae_total).to_f
 
     order.update_columns(
       gwansae: gwansae_total,
