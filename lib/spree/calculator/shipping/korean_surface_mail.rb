@@ -39,6 +39,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   # nongteuksae (농특세) -> ??
  
   def compute_order(order)
+    @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
     hyeonjisobisae_total = calculate_hyeonjisobisae(order)
     hyeonjisobisae_total = @currency_rate.convert_to_usd(hyeonjisobisae_total).to_f
 
@@ -51,8 +52,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       order.reload
       return 0
     end
-
-    @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
 
     gwansae_total = 0
     bugasae_total = 0
