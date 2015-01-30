@@ -62,7 +62,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       bugasae = calculate_bugasae(li)
       gwansae_total += (bugasae + gwansae)
     end
-
+    gwansae_total += 5000
     other_taxes_total = calculate_teukbyeolsobisae(order) + calculate_gyoyuksae_or_nongteuksae(order, "gyoyuksae") + calculate_gyoyuksae_or_nongteuksae(order, "nongteuksae")
 
     gwansae_total = @currency_rate.convert_to_usd(gwansae_total).to_f
