@@ -87,22 +87,22 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
   private
 
-    def calculate_seonpyeonyogeum(order)
+    def calculate_seonpyeonyogeum(order_or_product)
       shipping_rate = 0
-      if is_in_lower_price_bracket?(order)
+      if is_in_lower_price_bracket?(order_or_product)
         price_table = self.preferred_lower_price_bracket_weight_table.split
-        shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order) < BigDecimal(price_weight.split(':').first) }
-      elsif is_in_upper_price_bracket?(order)
+        shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order_or_product) < BigDecimal(price_weight.split(':').first) }
+      elsif is_in_upper_price_bracket?(order_or_product)
         price_table = self.preferred_upper_price_bracket_weight_table.split
-        shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order) < BigDecimal(price_weight.split(':').first) }
+        shipping_rate = price_table.select{ |price_weight| return Integer(price_weight.split(':').last) if calculate_total_weight(order_or_product) < BigDecimal(price_weight.split(':').first) }
       end
       shipping_rate
     end
 
-    def isApplicable?(order)
-      if is_in_lower_price_bracket?(order) and calculate_total_weight(order) < self.preferred_lower_price_bracket_max_weight
+    def isApplicable?(order_or_product)
+      if is_in_lower_price_bracket?(order_or_product) and calculate_total_weight(order_or_product) < self.preferred_lower_price_bracket_max_weight
         true
-      elsif is_in_upper_price_bracket?(order) and calculate_total_weight(order) <= self.preferred_upper_price_bracket_max_weight
+      elsif is_in_upper_price_bracket?(order_or_product) and calculate_total_weight(order_or_product) <= self.preferred_upper_price_bracket_max_weight
         true
       else
         false
@@ -235,9 +235,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::LineItem then [lineitem_or_order]
         when Spree::Order then lineitem_or_order.line_items
       end
-    
+
       return nil if items.empty?
-    
+
       tax_amount = 0
       items.each { |item|
         taxable_price = calculate_taxable_price(item)
@@ -250,31 +250,45 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         end
         tax_amount += teukbyeolsobisae * tax_rate
       }
-    
+
       tax_amount
     end
 
-    def calculate_total_weight(order)
+    def calculate_total_weight(order_or_product)
       #Currently we get all weights in hundreths of a pound calculate this
       #value in kg might be worth using https://github.com/joshwlewis/unitwise
       #for this
-      order.line_items.reduce(0) { |total_weight, item| total_weight+= ((item.variant.weight * 4.53592)/1000) * item.quantity }
+      total_weight = case order_or_product
+        when Spree::Product then calculate_weight(order_or_product.master)
+        when Spree::Order then order.line_items.reduce(0) { |total, item| total + (calculate_weight(item.variant)  * item.quantity) }
+      end
+      total_weight
     end
 
-    def calculate_total_price(order)
-      order.item_total + order.mock_shipment_total
+    def calculate_weight(variant)
+      @shipping_calculator ||= Spree::Calculator::Shipping::Ohmyzip.first
+      weight = variant.weight > 0.0 ? variant.weight : @shipping_calculator.preferred_default_weight
+      (weight * 4.53592)/1000
     end
 
-    def is_in_upper_price_bracket?(order)
-      order.item_total >= self.preferred_lower_price_bracket_limit
+    def is_in_upper_price_bracket?(order_or_product)
+      total = case order_or_product
+        when Spree::Product then order_or_product.price
+        when Spree::Order then order_or_product.item_total
+      end
+      total.to_f >= self.preferred_lower_price_bracket_limit
     end
 
-    def is_under_lower_price_bracket_minimum?(order)
-      order.item_total > self.preferred_lower_price_bracket_minimum
+    def is_under_lower_price_bracket_minimum?(order_or_product)
+      total = case order_or_product
+        when Spree::Product then order_or_product.price
+        when Spree::Order then order_or_product.item_total
+      end
+      total > self.preferred_lower_price_bracket_minimum
     end
 
-    def is_in_lower_price_bracket?(order)
-      is_in_upper_price_bracket?(order) == false and is_under_lower_price_bracket_minimum?(order) == true
+    def is_in_lower_price_bracket?(order_or_product)
+      is_in_upper_price_bracket?(order_or_product) == false and is_under_lower_price_bracket_minimum?(order_or_product) == true
     end
 
 end
