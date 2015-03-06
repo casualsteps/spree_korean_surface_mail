@@ -214,7 +214,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def calculate_hyeonjisobisae(lineitem_or_order_or_product)
-      items = case lineitem_or_order
+      items = case lineitem_or_order_or_product
         when Spree::LineItem, Spree::Product then [lineitem_or_order_or_product]
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
