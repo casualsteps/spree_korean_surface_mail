@@ -39,6 +39,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
   # nongteuksae (농특세) -> ??
  
   def compute_order(order)
+    @taxable_prices = {}
     @currency_rate = @currency_rate || Spree::CurrencyRate.find_by(:target_currency => 'KRW')
     hyeonjisobisae_total = calculate_hyeonjisobisae(order)
     hyeonjisobisae_total = @currency_rate.convert_to_usd(hyeonjisobisae_total).to_f
@@ -160,6 +161,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def calculate_taxable_price(item)
+      return @taxable_prices[item.id] if @taxable_prices[item.id].present?
       seonpyeonyogeum = calculate_seonpyeonyogeum(item.order)
       item_price = @currency_rate.convert_to_won(item.quantity * item.price).to_f
       order_price = @currency_rate.convert_to_won(item.order.item_total).to_f
@@ -167,6 +169,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       local_shipping_charge = @currency_rate.convert_to_won(item.product.local_shipping_total).to_f
       hyeonjisobisae = calculate_hyeonjisobisae(item)
       taxable_price = item_price + hyeonjisobisae + seonpyeonyogeum_for_this_item + local_shipping_charge
+      @taxable_prices[item.id] = taxable_price
       taxable_price
     end
 
@@ -175,7 +178,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
       gwansae_rate = get_gwansae_rate(item)
       gwansae = taxable_price * gwansae_rate
       round_up(gwansae)
-    end  
+    end
 
     def calculate_bugasae(item)
       taxable_price = calculate_taxable_price(item)
@@ -204,7 +207,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         hyeonjisobisae_rate = get_hyeonjisobisae_rate(item)
         hyeonjisobisae += (item_price + local_shipping_charge) * hyeonjisobisae_rate
       }
-
       hyeonjisobisae
     end
 
