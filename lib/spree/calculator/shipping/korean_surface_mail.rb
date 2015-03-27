@@ -174,12 +174,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def get_hyeonjisobisae_rate(item)
-      case item.try(:product) ? item.product.merchant : item.merchant
-      when "gap", "bananarepublic", "footlocker"
-        0.0625
-      else
-        0
-      end
+      # Return 0 since we have moved to new shipping company in NJ
+      # which has no sales tax.
+      0
     end
 
     def calculate_taxable_price(lineitem_or_product)
