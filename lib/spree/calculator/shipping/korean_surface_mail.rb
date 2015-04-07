@@ -217,10 +217,11 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.empty?
+      return nil if items.compact!.empty?
 
       hyeonjisobisae = 0
       items.each { |item|
+        next unless item
         item_price = @currency_rate.convert_to_won(quantity(item) * item.price).to_f
         local_shipping_charge = @currency_rate.convert_to_won(local_shipping_total(item)).to_f
         hyeonjisobisae_rate = get_hyeonjisobisae_rate(item)
@@ -235,7 +236,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.empty?
+      return nil if items.compact!.empty?
 
       teukbyeolsobisae = 0
       items.each { |item|
@@ -254,7 +255,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.empty?
+      return nil if items.compact!.empty?
 
       tax_amount = 0
       items.each { |item|
