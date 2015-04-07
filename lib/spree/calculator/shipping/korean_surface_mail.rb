@@ -217,8 +217,6 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.compact!.empty?
-
       hyeonjisobisae = 0
       items.each { |item|
         next unless item
@@ -236,10 +234,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.compact!.empty?
-
       teukbyeolsobisae = 0
       items.each { |item|
+        next unless item
         taxable_price = calculate_taxable_price(item)
         next if taxable_price <= 2000000
         gwansae = calculate_gwansae(item)
@@ -255,10 +252,9 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
         when Spree::Order then lineitem_or_order_or_product.line_items
       end
 
-      return nil if items.compact!.empty?
-
       tax_amount = 0
       items.each { |item|
+        next unless item
         taxable_price = calculate_taxable_price(item)
         next if taxable_price <= 2000000
         teukbyeolsobisae = calculate_teukbyeolsobisae(item)
