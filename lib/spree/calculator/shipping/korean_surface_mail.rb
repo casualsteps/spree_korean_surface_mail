@@ -303,7 +303,7 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
 
     def local_shipping_total(lineitem_or_product)
       ret = case lineitem_or_product
-      when Spree::LineItem  then lineitem_or_product.product.local_shipping_total
+      when Spree::LineItem  then lineitem_or_product.product.try(:local_shipping_total)
       when Spree::Product   then lineitem_or_product.local_shipping_total
       end
       return 0 unless ret
