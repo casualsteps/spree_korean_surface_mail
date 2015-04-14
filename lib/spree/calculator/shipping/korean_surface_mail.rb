@@ -136,7 +136,12 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def get_gwansae_rate(item)
-      case item.try(:product) ? item.product.category : item.category
+      category = case item
+        when Spree::LineItem  then item.product.try(:category)
+        when Spree::Product   then item.try(:category)
+      end
+      return 0 unless category
+      case category
       when /jewel/, /watch/, /bags/
         0.08
       else # clothing and others
@@ -145,7 +150,12 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def get_teukbyeolsobisae_rate(item)
-      case item.try(:product) ? item.product.category : item.category
+      category = case item
+        when Spree::LineItem  then item.product.try(:category)
+        when Spree::Product   then item.try(:category)
+      end
+      return 0 unless category
+      case category
       when /jewel/, /watch/
         0.2
       else 
@@ -154,7 +164,12 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     end
 
     def get_gyoyuksae_rate(item)
-      case item.try(:product) ? item.product.category : item.category
+      category = case item
+        when Spree::LineItem  then item.product.try(:category)
+        when Spree::Product   then item.try(:category)
+      end
+      return 0 unless category
+      case category
       when /jewel/, /watch/
         0.3
       else
