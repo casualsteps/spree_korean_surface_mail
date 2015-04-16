@@ -30,6 +30,10 @@ class Spree::Calculator::KoreanSurfaceMail <  Spree::Calculator
     0
   end
 
+  def compute_nil_class(nil_class)
+    0
+  end
+
   # seonpyeonyogeum (선편요금) -> Sea shipment fees
   # gwansae (관세) -> Customs duty/tariff
   # bugasae (부가세) -> VAT/surtax
